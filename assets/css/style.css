@@ -1,0 +1,17 @@
+/* custom styles for Barangay Connect */
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar-brand, .navbar-nav .nav-link {
+    font-weight: 600;
+}
+
+/* extra spacing for forms */
+.container h2 {
+    color: #0d6efd;
+}
+
+footer {
+    font-size: 0.9rem;
+}

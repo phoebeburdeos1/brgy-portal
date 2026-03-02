@@ -1,17 +1,226 @@
-/* custom styles for Barangay Connect */
+/* Barangay Connect – UI/UX */
+:root {
+    --brgy-primary: #0d6efd;
+    --brgy-primary-dark: #0a58ca;
+    --brgy-out: #dc3545;
+    --brgy-on-duty: #198754;
+    --brgy-card-bg: #fff;
+    --brgy-muted: #6c757d;
+}
+
 body {
-    background-color: #f8f9fa;
+    background-color: #f0f2f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.navbar-brand, .navbar-nav .nav-link {
+/* ----- Public page ----- */
+.navbar {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+.navbar-brand .brand-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    font-weight: 800;
+}
+
+/* Captain status card */
+.captain-status-card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.captain-status-card.out {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: #fff;
+}
+.captain-status-card.on-duty {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+    color: #fff;
+}
+.captain-status-card .card-body {
+    padding: 1.25rem 1.5rem;
+}
+.captain-status-card h5 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.captain-status-card .return-date {
+    opacity: 0.95;
+    font-size: 0.95rem;
+}
+
+/* Section titles */
+.section-title {
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+/* Announcements */
+.announcement-card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s;
+}
+.announcement-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.announcement-card .card-title {
     font-weight: 600;
+    color: #1a1a1a;
 }
 
-/* extra spacing for forms */
-.container h2 {
-    color: #0d6efd;
+/* Book appointment card */
+.booking-card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    background: var(--brgy-card-bg);
+}
+.booking-card .form-label {
+    font-weight: 500;
+    color: #333;
+}
+.booking-card .btn-schedule {
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+    border-radius: 8px;
 }
 
+/* Footer */
 footer {
     font-size: 0.9rem;
+    margin-top: 3rem;
+}
+
+/* ----- Admin dashboard ----- */
+.admin-wrap {
+    display: flex;
+    min-height: 100vh;
+    overflow: hidden;
+}
+.admin-sidebar {
+    width: 260px;
+    background: #1a1d23;
+    color: #e4e6eb;
+    padding: 1.5rem 0;
+    flex-shrink: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+}
+.admin-sidebar .brand {
+    padding: 0 1.25rem 1.25rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 1rem;
+}
+.admin-sidebar .nav-link {
+    color: #b0b3b8;
+    padding: 0.65rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 3px solid transparent;
+}
+.admin-sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+}
+.admin-sidebar .nav-link.active {
+    background: rgba(13, 110, 253, 0.15);
+    color: #0d6efd;
+    border-left-color: #0d6efd;
+}
+.admin-main {
+    flex: 1;
+    margin-left: 260px;
+    background: #f0f2f5;
+    padding: 1.5rem 2rem;
+    overflow-x: auto;
+    overflow-y: auto;
+    height: 100vh;
+}
+.admin-header {
+    background: #fff;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 1.5rem;
+}
+.admin-header h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a1a;
+}
+.admin-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 1.5rem;
+    border: none;
+}
+.admin-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+    color: #1a1a1a;
+}
+.admin-card .card-body {
+    padding: 1.25rem;
+}
+.admin-table {
+    margin: 0;
+}
+.admin-table th {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.875rem;
+}
+.admin-table .badge-confirmed {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+.admin-table .badge-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+.btn-edit-status {
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+@media (max-width: 991.98px) {
+    .admin-wrap {
+        flex-direction: column;
+    }
+    .admin-sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        padding: 1rem;
+    }
+    .admin-main {
+        margin-left: 0;
+        height: auto;
+        min-height: 100vh;
+    }
 }

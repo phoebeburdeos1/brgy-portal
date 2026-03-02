@@ -1,0 +1,6 @@
+vendor/
+mail_config.php
+.DS_Store
+Thumbs.db
+*.log
+

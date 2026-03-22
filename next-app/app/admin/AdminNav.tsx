@@ -12,7 +12,13 @@ import {
   UserCog,
 } from 'lucide-react'
 
-export function AdminNav({ isAdmin }: { isAdmin: boolean }) {
+export function AdminNav({
+  isAdmin,
+  onNavigate,
+}: {
+  isAdmin: boolean
+  onNavigate?: () => void
+}) {
   void isAdmin
   const path = usePathname()
   const [hash, setHash] = useState('')
@@ -48,6 +54,7 @@ export function AdminNav({ isAdmin }: { isAdmin: boolean }) {
         <Link
           key={href}
           href={href}
+          onClick={() => onNavigate?.()}
           className={[
             'relative flex items-center gap-3 rounded-r-lg px-3 py-2.5 text-sm transition-colors',
             active
@@ -61,6 +68,7 @@ export function AdminNav({ isAdmin }: { isAdmin: boolean }) {
       )})}
       <Link
         href="/"
+        onClick={() => onNavigate?.()}
         className="mt-3 flex items-center gap-3 rounded-r-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200 transition-colors"
       >
         <ExternalLink className="h-4 w-4" />

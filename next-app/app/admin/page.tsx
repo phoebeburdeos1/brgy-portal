@@ -1,10 +1,12 @@
 import { redirect } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase-server'
 import { isAdmin } from '@/lib/admin-auth'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CaptainForm } from './CaptainForm'
-import { AppointmentsSection } from './AppointmentsSection'
 import { AnnouncementsSection } from './AnnouncementsSection'
-import { LogoutButton } from './LogoutButton'
+import { NotificationsBell } from './NotificationsBell'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,40 +35,96 @@ export default async function AdminPage() {
     return acc
   }, [])
 
+  const pendingAppointments = (deduped ?? []).filter((a) => !a.processed)
+  const completedAppointments = (deduped ?? []).filter((a) => a.processed)
+  const completedCount = completedAppointments.length
+  const captainStatus = captain?.status ?? 'Unknown'
+  const captainVariant = captainStatus === 'On-Duty' ? 'green' : captainStatus === 'Out of Office' ? 'red' : 'slate'
+  const pendingTodayCount = pendingAppointments.filter((a) => {
+    const today = new Date().toISOString().slice(0, 10)
+    return (a.appointment_date ?? '').slice(0, 10) === today
+  }).length
+
+  const statCard = (
+    label: string,
+    value: number | string,
+    subtext: string,
+    linkText: string,
+  ) => (
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-transparent dark:shadow-indigo-500/5 flex flex-col justify-between">
+      <div>
+        <div className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</div>
+        <div className="mt-2 flex items-baseline gap-2">
+          <div className="text-3xl font-bold text-slate-900 dark:text-slate-50">{value}</div>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+        <span>{subtext}</span>
+        <Link
+          href="/admin/appointments"
+          className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+        >
+          {linkText}
+        </Link>
+      </div>
+    </div>
+  )
+
   return (
     <>
-      <div className="bg-white rounded-xl shadow p-4 mb-6" id="dashboard">
-        <h1 className="text-xl font-bold text-gray-900">Dashboard Overview</h1>
-      </div>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6" id="dashboard">
+        <Card className="xl:col-span-2">
+          <CardHeader>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                  Dashboard Overview
+                </h1>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                  Command center for captain status, appointments, and announcements.
+                </p>
+              </div>
+              <NotificationsBell pending={pendingAppointments} />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <AnnouncementsSection
+              active={activeAnnouncements ?? []}
+              archived={archivedAnnouncements ?? []}
+            />
+          </CardContent>
+        </Card>
 
-      <div className="bg-white rounded-xl shadow mb-6" id="captain">
-        <div className="border-b border-gray-200 px-5 py-3 flex justify-between items-center">
-          <span className="font-semibold text-gray-900">Captain&apos;s Current Status</span>
-          <div className="hidden md:flex items-center gap-2">
-            <span className="text-xs text-gray-500 uppercase tracking-wide">Legend:</span>
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500 text-white">On Duty</span>
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500 text-white">Out of Town</span>
+        <div className="xl:sticky xl:top-6 space-y-6">
+          <Card id="captain">
+          <CardHeader>
+            <div className="flex items-center justify-between gap-3">
+              <CardTitle className="flex items-center gap-2">
+                  <span
+                    className={`inline-flex h-2.5 w-2.5 rounded-full ${
+                      captainStatus === 'On-Duty'
+                        ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+                        : captainStatus === 'Out of Office'
+                        ? 'bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.5)]'
+                        : 'bg-slate-500'
+                    }`}
+                  />
+                  Quick Action
+                </CardTitle>
+              <Badge variant={captainVariant}>{captainStatus === 'Out of Office' ? 'Out of Town' : captainStatus}</Badge>
+            </div>
+            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">Update the captain’s current availability.</div>
+          </CardHeader>
+          <CardContent>
+            <CaptainForm />
+          </CardContent>
+          </Card>
+
+          <div className="space-y-3">
+            {statCard('Total Appointments', (deduped ?? []).length, 'All time', 'See details')}
+            {statCard('Pending Today', pendingTodayCount, 'Requires attention', 'See details')}
+            {statCard('Confirmed', completedCount, 'Successfully processed', 'See details')}
           </div>
-        </div>
-        <div className="p-5">
-          <CaptainForm />
-        </div>
-      </div>
-
-      <AppointmentsSection appointments={deduped ?? []} />
-
-      <AnnouncementsSection
-        active={activeAnnouncements ?? []}
-        archived={archivedAnnouncements ?? []}
-      />
-
-      <div className="bg-white rounded-xl shadow p-5 mt-6" id="profile">
-        <h2 className="font-semibold text-gray-900 mb-2">Profile &amp; Settings</h2>
-        <p className="text-sm text-gray-600">
-          Admin account. Set <code className="bg-gray-100 px-1 rounded">ADMIN_PASSWORD</code> in environment for login.
-        </p>
-        <div className="mt-3">
-          <LogoutButton />
         </div>
       </div>
     </>

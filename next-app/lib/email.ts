@@ -1,7 +1,23 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-const from = process.env.EMAIL_FROM ?? 'Barangay Bonbon <onboarding@resend.dev>'
+const smtpHost = process.env.SMTP_HOST
+const smtpPort = Number(process.env.SMTP_PORT ?? 587)
+const smtpUser = process.env.SMTP_USER
+const smtpPassword = process.env.SMTP_PASSWORD
+const from = process.env.EMAIL_FROM ?? 'Barangay Bonbon <no-reply@barangaybonbon.local>'
+
+const transporter =
+  smtpHost && smtpPort && smtpUser && smtpPassword
+    ? nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: false,
+        auth: {
+          user: smtpUser,
+          pass: smtpPassword,
+        },
+      })
+    : null
 
 export async function sendAppointmentConfirmation(
   email: string,
@@ -9,10 +25,10 @@ export async function sendAppointmentConfirmation(
   date: string,
   purpose: string
 ) {
-  if (!process.env.RESEND_API_KEY) return
-  await resend.emails.send({
+  if (!transporter) return
+  await transporter.sendMail({
     from,
-    to: email,
+    to: [email],
     subject: 'Barangay Appointment Confirmation',
     text: `Hi ${name},\n\nYour appointment request has been received.\nDate: ${date}\nPurpose: ${purpose}\n\nThank you,\nBarangay Bonbon`,
   })
@@ -24,10 +40,10 @@ export async function sendAppointmentApproval(
   date: string,
   purpose: string
 ) {
-  if (!process.env.RESEND_API_KEY) return
-  await resend.emails.send({
+  if (!transporter) return
+  await transporter.sendMail({
     from,
-    to: email,
+    to: [email],
     subject: 'Barangay Appointment Approved',
     text: `Hi ${name},\n\nYour booking on ${date} (${purpose}) has been successfully approved.\nPlease be at the barangay office on that day.\n\nThank you,\nBarangay Bonbon`,
   })

@@ -1,8 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Announcement } from '@/lib/supabase'
+import { Archive, RotateCcw, Send, Trash2 } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { IconButton } from '@/components/ui/icon-button'
 
 export function AnnouncementsSection({
   active,
@@ -16,6 +19,7 @@ export function AnnouncementsSection({
   const [body, setBody] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [openIds, setOpenIds] = useState<Record<number, boolean>>({})
 
   async function postAnnouncement(e: React.FormEvent) {
     e.preventDefault()
@@ -71,126 +75,200 @@ export function AnnouncementsSection({
     router.refresh()
   }
 
+  function getRelativeTime(value: string) {
+    if (!value) return ''
+    const target = new Date(value)
+    const now = new Date()
+    const diffMs = now.getTime() - target.getTime()
+    const diffSec = Math.round(diffMs / 1000)
+    const diffMin = Math.round(diffSec / 60)
+    const diffHour = Math.round(diffMin / 60)
+    const diffDay = Math.round(diffHour / 24)
+
+    if (diffSec < 60) return 'Just now'
+    if (diffMin < 60) return `${diffMin} min${diffMin === 1 ? '' : 's'} ago`
+    if (diffHour < 24) return `${diffHour} hour${diffHour === 1 ? '' : 's'} ago`
+    if (diffDay < 7) return `${diffDay} day${diffDay === 1 ? '' : 's'} ago`
+    const diffWeek = Math.floor(diffDay / 7)
+    return `${diffWeek} week${diffWeek === 1 ? '' : 's'} ago`
+  }
+
+  const activeWithTime = useMemo(
+    () => active.map((a) => ({ ...a, _relative: getRelativeTime(a.created_at) })),
+    [active],
+  )
+
+  const archivedWithTime = useMemo(
+    () => archived.map((a) => ({ ...a, _relative: getRelativeTime(a.created_at) })),
+    [archived],
+  )
+
+  function toggleOpen(id: number) {
+    setOpenIds((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
+
   return (
-    <div className="bg-white rounded-xl shadow mb-6" id="announcements">
-      <div className="border-b border-gray-200 px-5 py-3 font-semibold text-gray-900">
-        Recent Announcements / Post New
-      </div>
-      <div className="p-5">
+    <Card id="announcements">
+      <CardHeader className="flex items-center justify-between gap-3">
+        <div>
+          <CardTitle>Announcements</CardTitle>
+          <div className="mt-1 text-xs text-slate-500 dark:text-slate-500">
+            Post updates and manage archived items.
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
         {message && (
-          <div className="mb-4 p-2 rounded bg-blue-50 text-blue-800 text-sm">{message}</div>
+          <div className="mb-4 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm text-indigo-800 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300">
+            {message}
+          </div>
         )}
 
-        <h6 className="text-gray-500 mb-2">Past Announcements</h6>
-        {active.length === 0 ? (
-          <p className="text-gray-500 mb-4">No announcements yet.</p>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Active</h3>
+        {activeWithTime.length === 0 ? (
+          <p className="text-sm text-slate-500 mb-6">No announcements yet.</p>
         ) : (
-          <div className="space-y-2 mb-6">
-            {active.map((ann) => (
+          <div className="space-y-3 mb-8">
+            {activeWithTime.map((ann) => (
               <div
                 key={ann.id}
-                className="flex flex-wrap justify-between items-start gap-2 p-3 border border-gray-200 rounded-lg"
+                className="flex flex-wrap justify-between items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900"
               >
-                <div>
-                  <div className="font-semibold text-gray-900">{ann.title}</div>
-                  <div className="text-sm text-gray-500">Posted {new Date(ann.created_at).toLocaleString()}</div>
-                  <details className="mt-2">
-                    <summary className="text-sm text-gray-500 cursor-pointer">View message</summary>
-                    <div className="text-sm text-gray-600 mt-2 whitespace-pre-wrap">{ann.body}</div>
-                  </details>
-                </div>
-                <div className="flex gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="font-semibold text-slate-900 dark:text-slate-100">{ann.title}</div>
+                    <span className="text-[11px] text-slate-500">
+                      {ann._relative}
+                    </span>
+                  </div>
                   <button
                     type="button"
+                    onClick={() => toggleOpen(ann.id)}
+                    className="mt-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+                  >
+                    {openIds[ann.id] ? 'Hide message' : 'View message'}
+                  </button>
+                  <div
+                    className={`mt-2 overflow-hidden text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap transition-all duration-200 ${
+                      openIds[ann.id] ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
+                    }`}
+                  >
+                    {ann.body}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <IconButton
+                    label="Archive announcement"
+                    variant="ghost"
                     onClick={() => archive(ann.id)}
-                    className="text-sm rounded border border-blue-600 text-blue-600 px-2 py-1 hover:bg-blue-50"
                   >
-                    Archive
-                  </button>
-                  <button
-                    type="button"
+                    <Archive className="h-4 w-4" />
+                  </IconButton>
+                  <IconButton
+                    label="Delete announcement"
+                    variant="danger"
                     onClick={() => deleteAnnouncement(ann.id)}
-                    className="text-sm rounded border border-red-600 text-red-600 px-2 py-1 hover:bg-red-50"
                   >
-                    Delete
-                  </button>
+                    <Trash2 className="h-4 w-4" />
+                  </IconButton>
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        <h6 className="text-gray-500 mb-2">Archived</h6>
-        {archived.length === 0 ? (
-          <p className="text-gray-500 mb-4">No archived announcements.</p>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Archived</h3>
+        {archivedWithTime.length === 0 ? (
+          <p className="text-sm text-slate-500 mb-6">No archived announcements.</p>
         ) : (
-          <div className="space-y-2 mb-6">
-            {archived.map((ann) => (
+          <div className="space-y-3 mb-8">
+            {archivedWithTime.map((ann) => (
               <div
                 key={ann.id}
-                className="flex flex-wrap justify-between items-start gap-2 p-3 border border-gray-200 rounded-lg"
+                className="flex flex-wrap justify-between items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900"
               >
-                <div>
-                  <div className="font-semibold text-gray-900">{ann.title}</div>
-                  <div className="text-sm text-gray-500">Posted {new Date(ann.created_at).toLocaleString()}</div>
-                  <details className="mt-2">
-                    <summary className="text-sm text-gray-500 cursor-pointer">View message</summary>
-                    <div className="text-sm text-gray-600 mt-2 whitespace-pre-wrap">{ann.body}</div>
-                  </details>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="font-semibold text-slate-900 dark:text-slate-100">{ann.title}</div>
+                    <span className="text-[11px] text-slate-500">
+                      {ann._relative}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toggleOpen(ann.id)}
+                    className="mt-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+                  >
+                    {openIds[ann.id] ? 'Hide message' : 'View message'}
+                  </button>
+                  <div
+                    className={`mt-2 overflow-hidden text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap transition-all duration-200 ${
+                      openIds[ann.id] ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
+                    }`}
+                  >
+                    {ann.body}
+                  </div>
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    type="button"
+                  <IconButton
+                    label="Restore announcement"
+                    variant="ghost"
                     onClick={() => unarchive(ann.id)}
-                    className="text-sm rounded border border-gray-500 text-gray-600 px-2 py-1 hover:bg-gray-50"
                   >
-                    Restore
-                  </button>
-                  <button
-                    type="button"
+                    <RotateCcw className="h-4 w-4" />
+                  </IconButton>
+                  <IconButton
+                    label="Delete announcement"
+                    variant="danger"
                     onClick={() => deleteAnnouncement(ann.id)}
-                    className="text-sm rounded border border-red-600 text-red-600 px-2 py-1 hover:bg-red-50"
                   >
-                    Delete
-                  </button>
+                    <Trash2 className="h-4 w-4" />
+                  </IconButton>
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        <form onSubmit={postAnnouncement} className="space-y-3">
+        <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">Post new</h3>
+        </div>
+
+        <form onSubmit={postAnnouncement} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Free Anti-Rabies Vaccine Saturday!"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-100"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Body</label>
+            <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Body</label>
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={4}
               placeholder="Announcement details..."
-              className="w-full rounded-lg border border-gray-300 px-3 py-2"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-100"
               required
             />
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-lg bg-blue-600 text-white px-4 py-2 font-medium hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? 'Posting…' : 'Post Announcement'}
-          </button>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 disabled:opacity-50"
+            >
+              <Send className="h-4 w-4" />
+              {loading ? 'Posting…' : 'Post announcement'}
+            </button>
+          </div>
         </form>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

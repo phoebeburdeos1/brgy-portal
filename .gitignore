@@ -1,5 +1,6 @@
 vendor/
 mail_config.php
+.env.local
 .DS_Store
 Thumbs.db
 *.log

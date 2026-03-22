@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { sendAppointmentConfirmation } from '@/lib/email'
 
+function isoDateStr(value: string | Date) {
+  const d = value instanceof Date ? value : new Date(value)
+  return d.toISOString().slice(0, 10)
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -21,16 +26,22 @@ export async function POST(request: NextRequest) {
 
     const { data: captain } = await supabase
       .from('captain_status')
-      .select('status')
+      .select('status, return_date')
       .order('id', { ascending: false })
       .limit(1)
       .single()
 
-    if (captain?.status === 'On-Duty') {
-      return NextResponse.json(
-        { error: 'Online appointment requests are disabled while the captain is On-Duty. Please visit the barangay office.' },
-        { status: 400 }
-      )
+    if (captain?.status === 'Out of Office' && captain.return_date) {
+      const todayStr = isoDateStr(new Date())
+      const untilStr = isoDateStr(captain.return_date)
+      const requestedStr = String(appointment_date)
+
+      if (requestedStr >= todayStr && requestedStr <= untilStr) {
+        return NextResponse.json(
+          { error: 'Selected date is unavailable while the captain is out of office. Please choose a later date.' },
+          { status: 400 },
+        )
+      }
     }
 
     const { error } = await supabase.from('appointments').insert({
@@ -47,7 +58,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to save appointment.' }, { status: 500 })
     }
 
-    await sendAppointmentConfirmation(email.trim(), name.trim(), appointment_date, purpose.trim())
+    try {
+      await sendAppointmentConfirmation(email.trim(), name.trim(), appointment_date, purpose.trim())
+    } catch (emailError) {
+      console.error('Email send failed (non-fatal):', emailError)
+    }
 
     return NextResponse.json({ ok: true })
   } catch (e) {

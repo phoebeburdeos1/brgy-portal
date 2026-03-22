@@ -1,18 +1,51 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-export function BookingCard({ bookingDisabled }: { bookingDisabled: boolean }) {
+function isoDate(date: Date) {
+  return date.toISOString().slice(0, 10)
+}
+
+export function BookingCard({
+  bookingDisabled,
+  unavailableUntil,
+}: {
+  bookingDisabled: boolean
+  unavailableUntil: string | null
+}) {
   const router = useRouter()
   const [message, setMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const today = useMemo(() => new Date(), [])
+
+  const minDate = useMemo(() => {
+    if (!unavailableUntil) {
+      return isoDate(today)
+    }
+    const until = new Date(unavailableUntil)
+    if (Number.isNaN(until.getTime()) || until < today) {
+      return isoDate(today)
+    }
+    const dayAfter = new Date(until)
+    dayAfter.setDate(dayAfter.getDate() + 1)
+    return isoDate(dayAfter)
+  }, [today, unavailableUntil])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (bookingDisabled) return
     const form = e.currentTarget
     const formData = new FormData(form)
+    const requested = String(formData.get('appointment_date') ?? '')
+
+    if (unavailableUntil && requested) {
+      const todayStr = isoDate(today)
+      const untilStr = isoDate(new Date(unavailableUntil))
+      if (requested >= todayStr && requested <= untilStr) {
+        setMessage('Selected date is unavailable while the captain is out of office. Please choose a later date.')
+        return
+      }
+    }
     setIsSubmitting(true)
     setMessage(null)
     try {
@@ -45,9 +78,8 @@ export function BookingCard({ bookingDisabled }: { bookingDisabled: boolean }) {
     }
   }
 
-  const today = new Date()
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
-  const monthName = today.toLocaleString('default', { month: 'long', year: 'numeric' })
+  const monthName = today.toLocaleString('en-US', { month: 'long', year: 'numeric' })
 
   return (
     <div className="bg-gradient-to-br from-blue-600 to-blue-900 rounded-xl shadow-lg p-6 text-white">
@@ -57,12 +89,6 @@ export function BookingCard({ bookingDisabled }: { bookingDisabled: boolean }) {
           {message}
         </div>
       )}
-      {bookingDisabled && (
-        <p className="text-sm text-blue-100 mb-4">
-          Online booking is temporarily unavailable while the captain is On-Duty. Please visit the barangay office.
-        </p>
-      )}
-
       <div className="mb-4 p-3 rounded-xl bg-black/20">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-medium">Schedule</span>
@@ -140,6 +166,7 @@ export function BookingCard({ bookingDisabled }: { bookingDisabled: boolean }) {
             name="appointment_date"
             required
             disabled={bookingDisabled}
+            min={minDate}
             className="w-full rounded-lg border border-blue-400/50 bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
           />
         </div>

@@ -6,14 +6,14 @@ export async function POST(request: NextRequest) {
   if (!(await isAdmin())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  const body = await request.json()
-  const { title, body } = body
-  if (!title?.trim() || !body?.trim()) {
+  const payload = await request.json()
+  const { title, body: content } = payload
+  if (!title?.trim() || !content?.trim()) {
     return NextResponse.json({ error: 'Title and body required' }, { status: 400 })
   }
   const { error } = await supabaseAdmin.from('announcements').insert({
     title: title.trim(),
-    body: body.trim(),
+    body: content.trim(),
     archived: false,
   })
   if (error) {

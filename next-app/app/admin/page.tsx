@@ -28,9 +28,10 @@ export default async function AdminPage() {
     supabaseAdmin.from('announcements').select('*').eq('archived', true).order('created_at', { ascending: false }),
   ])
 
-  const deduped = (appointments ?? []).reduce((acc: typeof appointments, row) => {
-    const key = `${(row!.name ?? '').toLowerCase()}|${row!.phone}|${(row!.purpose ?? '').toLowerCase()}|${row!.appointment_date}|${row!.processed}`
-    if (acc.some((r) => `${(r!.name ?? '').toLowerCase()}|${r!.phone}|${(r!.purpose ?? '').toLowerCase()}|${r!.appointment_date}|${r!.processed}` === key)) return acc
+  const apptRows = appointments ?? []
+  const deduped = apptRows.reduce<typeof apptRows>((acc, row) => {
+    const key = `${(row.name ?? '').toLowerCase()}|${row.phone}|${(row.purpose ?? '').toLowerCase()}|${row.appointment_date}|${row.processed}`
+    if (acc.some((r) => `${(r.name ?? '').toLowerCase()}|${r.phone}|${(r.purpose ?? '').toLowerCase()}|${r.appointment_date}|${r.processed}` === key)) return acc
     acc.push(row)
     return acc
   }, [])

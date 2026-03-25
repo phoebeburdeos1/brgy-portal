@@ -2,18 +2,19 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { PublicNavbar } from '../components/PublicNavbar'
 import { PublicFooter } from '../components/PublicFooter'
+import { OfficialsGrid } from './OfficialsGrid'
 
 const OFFICIALS = [
-  { name: 'Punong Barangay', position: 'Barangay Captain', initials: 'PB' },
-  { name: 'Barangay Kagawad 1', position: 'Committee on Peace & Order', initials: 'K1' },
-  { name: 'Barangay Kagawad 2', position: 'Committee on Health', initials: 'K2' },
-  { name: 'Barangay Kagawad 3', position: 'Committee on Education', initials: 'K3' },
-  { name: 'Barangay Kagawad 4', position: 'Committee on Finance', initials: 'K4' },
-  { name: 'Barangay Kagawad 5', position: 'Committee on Infrastructure', initials: 'K5' },
-  { name: 'Barangay Kagawad 6', position: 'Committee on Agriculture', initials: 'K6' },
-  { name: 'Barangay Kagawad 7', position: 'Committee on Welfare', initials: 'K7' },
-  { name: 'Barangay Secretary', position: 'Administrative Officer', initials: 'SK' },
-  { name: 'Barangay Treasurer', position: 'Financial Officer', initials: 'TR' },
+  { name: 'Pebi Burdeos', position: 'Barangay Captain', initials: 'PB', photoSrc: '/officials/PB.jpg' },
+  { name: 'Julianne Burdeos', position: 'Committee on Peace & Order', initials: 'K1', photoSrc: '/officials/K1.jpg' },
+  { name: 'Sheryn Cubao', position: 'Committee on Health', initials: 'K2', photoSrc: '/officials/K2.jpg' },
+  { name: 'Jenzel Masarap', position: 'Committee on Education', initials: 'K3', photoSrc: '/officials/K3.jpg' },
+  { name: 'Sabrina Carpenter', position: 'Committee on Finance', initials: 'K4', photoSrc: '/officials/K4.jpg' },
+  { name: 'Marmar Lami', position: 'Committee on Infrastructure', initials: 'K5', photoSrc: '/officials/K5.jpg' },
+  { name: 'Krista Yobmot', position: 'Committee on Agriculture', initials: 'K6', photoSrc: '/officials/K6.jpg' },
+  { name: 'January Febr', position: 'Committee on Welfare', initials: 'K7', photoSrc: '/officials/K7.jpg' },
+  { name: 'Shainna Maldita', position: 'Administrative Officer', initials: 'SK', photoSrc: '/officials/SK.jpg' },
+  { name: 'An Lumingon Kanaman', position: 'Financial Officer', initials: 'TR', photoSrc: '/officials/TR.jpg' },
 ]
 
 export default function AboutPage() {
@@ -61,20 +62,7 @@ export default function AboutPage() {
           {/* Barangay Officials */}
           <section>
             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">Barangay Officials</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {OFFICIALS.map((official) => (
-                <div
-                  key={official.initials}
-                  className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow-sm border border-slate-200 dark:border-slate-700 text-center hover:shadow-md transition-shadow"
-                >
-                  <div className="w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl font-bold mx-auto mb-3">
-                    {official.initials}
-                  </div>
-                  <h3 className="font-bold text-slate-900 dark:text-slate-100">{official.name}</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 italic">{official.position}</p>
-                </div>
-              ))}
-            </div>
+            <OfficialsGrid officials={OFFICIALS} />
           </section>
         </div>
       </main>

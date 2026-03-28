@@ -6,7 +6,7 @@ import { OfficialsGrid } from './OfficialsGrid'
 
 const OFFICIALS = [
   { name: 'Pebi Burdeos', position: 'Barangay Captain', initials: 'PB', photoSrc: '/officials/PB.jpg' },
-  { name: 'Julianne Burdeos', position: 'Committee on Peace & Order', initials: 'K1', photoSrc: '/officials/K1.jpg' },
+  { name: 'Angie corrupt', position: 'Committee on Peace & Order', initials: 'K1', photoSrc: '/officials/K1.jpg' },
   { name: 'Sheryn Cubao', position: 'Committee on Health', initials: 'K2', photoSrc: '/officials/K2.jpg' },
   { name: 'Jenzel Masarap', position: 'Committee on Education', initials: 'K3', photoSrc: '/officials/K3.jpg' },
   { name: 'Sabrina Carpenter', position: 'Committee on Finance', initials: 'K4', photoSrc: '/officials/K4.jpg' },

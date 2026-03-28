@@ -23,7 +23,7 @@ export default async function AdminPage() {
     { data: archivedAnnouncements },
   ] = await Promise.all([
     supabaseAdmin.from('captain_status').select('*').order('id', { ascending: false }).limit(1).single(),
-    supabaseAdmin.from('appointments').select('*').order('created_at', { ascending: false }),
+    supabaseAdmin.from('appointments').select('*').eq('hidden', false).order('created_at', { ascending: false }),
     supabaseAdmin.from('announcements').select('*').eq('archived', false).order('created_at', { ascending: false }),
     supabaseAdmin.from('announcements').select('*').eq('archived', true).order('created_at', { ascending: false }),
   ])

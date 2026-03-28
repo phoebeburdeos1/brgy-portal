@@ -2,21 +2,34 @@
 
 import { useRouter } from 'next/navigation'
 import type { Appointment } from '@/lib/supabase'
-import { Check, CheckCircle2 } from 'lucide-react'
+import { Archive, Check, CheckCircle2, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function AppointmentsSection({ appointments }: { appointments: Appointment[] }) {
   const router = useRouter()
-  const pending = appointments.filter((a) => !a.processed)
-  const completed = appointments.filter((a) => a.processed)
+  const pending = appointments.filter((a) => !a.processed && !(a.archived ?? false))
+  const completed = appointments.filter((a) => a.processed && !(a.archived ?? false))
 
-  async function approve(id: number) {
+  async function patch(id: number, body: Record<string, boolean>) {
     await fetch('/api/admin/appointments', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, processed: true }),
+      body: JSON.stringify({ id, ...body }),
     })
     router.refresh()
+  }
+
+  async function approve(id: number) {
+    await patch(id, { processed: true })
+  }
+
+  async function archiveCompleted(id: number) {
+    await patch(id, { archived: true })
+  }
+
+  async function softDelete(id: number) {
+    if (!confirm('Remove this from the list? The record stays in the database but is hidden from the dashboard.')) return
+    await patch(id, { hidden: true })
   }
 
   const th =
@@ -32,11 +45,11 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
 
   return (
     <Card id="appointments">
-        <CardHeader className="flex items-center justify-between gap-3">
+      <CardHeader className="flex items-center justify-between gap-3">
         <div>
           <CardTitle>Appointment Summary</CardTitle>
           <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            Review and approve pending requests.
+            Review and approve pending requests. Archive or remove completed rows from view (soft delete).
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -79,9 +92,7 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
                     <td className={td}>{a.email}</td>
                     <td className={td}>{a.phone}</td>
                     <td className={td} title={a.purpose ?? ''}>
-                      <span className="block max-w-[28rem] truncate">
-                        {truncatePurpose(a.purpose)}
-                      </span>
+                      <span className="block max-w-[28rem] truncate">{truncatePurpose(a.purpose)}</span>
                     </td>
                     <td className={td}>{a.appointment_date}</td>
                     <td className={td}>
@@ -119,7 +130,7 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
                 <th className={th}>Purpose</th>
                 <th className={th}>Date</th>
                 <th className={th}>Status</th>
-                <th className={th} />
+                <th className={th}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -136,9 +147,7 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
                     <td className={td}>{a.email}</td>
                     <td className={td}>{a.phone}</td>
                     <td className={td} title={a.purpose ?? ''}>
-                      <span className="block max-w-[28rem] truncate">
-                        {truncatePurpose(a.purpose)}
-                      </span>
+                      <span className="block max-w-[28rem] truncate">{truncatePurpose(a.purpose)}</span>
                     </td>
                     <td className={td}>{a.appointment_date}</td>
                     <td className={td}>
@@ -147,9 +156,29 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
                       </span>
                     </td>
                     <td className={td}>
-                      <span className="inline-flex items-center gap-1 text-slate-500">
-                        <CheckCircle2 className="h-4 w-4" /> Done
-                      </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => archiveCompleted(a.id)}
+                          aria-label="Archive appointment"
+                          title="Archive"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-indigo-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400 transition-colors"
+                        >
+                          <Archive className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => softDelete(a.id)}
+                          aria-label="Remove from list"
+                          title="Remove from list (kept in database)"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-rose-100 hover:text-rose-700 dark:text-slate-400 dark:hover:bg-rose-500/20 dark:hover:text-rose-400 transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                        <span className="inline-flex items-center gap-1 text-slate-500 ml-1">
+                          <CheckCircle2 className="h-4 w-4" /> Done
+                        </span>
+                      </div>
                     </td>
                   </tr>
                 ))

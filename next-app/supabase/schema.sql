@@ -28,8 +28,14 @@ CREATE TABLE IF NOT EXISTS appointments (
     purpose TEXT NOT NULL,
     appointment_date DATE NOT NULL,
     processed BOOLEAN NOT NULL DEFAULT FALSE,
+    archived BOOLEAN NOT NULL DEFAULT FALSE,
+    hidden BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Existing databases: add columns once (safe to re-run)
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS archived BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS hidden BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- RLS: public can read captain status and active announcements, insert appointments, read appointments.
 -- Admin writes (update/delete) use the service_role key in Next.js API routes (bypasses RLS).

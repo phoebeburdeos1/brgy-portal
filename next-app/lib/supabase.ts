@@ -33,5 +33,9 @@ export type Appointment = {
   purpose: string
   appointment_date: string
   processed: boolean
+  /** Completed row moved to archive list */
+  archived?: boolean
+  /** Soft-delete: hidden from lists; row remains in database */
+  hidden?: boolean
   created_at: string
 }

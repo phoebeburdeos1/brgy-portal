@@ -3,11 +3,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Bell, CalendarDays, X } from 'lucide-react'
+import { Bell, CalendarDays } from 'lucide-react'
 import type { Appointment } from '@/lib/supabase'
+import {
+  getNotificationLastOpenedAt,
+  setNotificationLastOpenedAt,
+} from '@/lib/admin-notification-storage'
 import { cn } from '@/components/ui/cn'
-
-const STORAGE_KEY = 'admin_notifications_last_opened_at'
+import { AppointmentDetailModal } from '@/components/AppointmentDetailModal'
 
 function isUnread(a: Appointment, lastOpenedAt: string | null): boolean {
   if (!lastOpenedAt) return true
@@ -25,21 +28,23 @@ export function NotificationsBell({ pending }: { pending: Appointment[] }) {
 
   useEffect(() => {
     setMounted(true)
-    setLastOpenedAt(window.localStorage.getItem(STORAGE_KEY))
+    setLastOpenedAt(getNotificationLastOpenedAt())
   }, [])
 
   const unreadCount = useMemo(() => {
     if (!mounted) return 0
+    if (pending.length === 0) return 0
     return pending.filter((a) => isUnread(a, lastOpenedAt)).length
   }, [mounted, pending, lastOpenedAt])
 
-  const hasUnread = unreadCount > 0
+  /** Only show badge when there are pending rows and at least one is newer than last acknowledged time */
+  const hasUnread = pending.length > 0 && unreadCount > 0
   const recent = pending.slice(0, 5)
 
   function acknowledge() {
     const now = new Date().toISOString()
     setLastOpenedAt(now)
-    window.localStorage.setItem(STORAGE_KEY, now)
+    setNotificationLastOpenedAt(now)
   }
 
   function handleBellClick() {
@@ -145,72 +150,12 @@ export function NotificationsBell({ pending }: { pending: Appointment[] }) {
       </div>
 
       {detail ? (
-        <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <button
-            type="button"
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-[1px]"
-            aria-label="Close"
-            onClick={() => setDetail(null)}
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="notif-appt-title"
-            className="relative z-10 w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between gap-3 border-b border-slate-200 dark:border-slate-800 p-4">
-              <div className="min-w-0">
-                <h2 id="notif-appt-title" className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                  Appointment request
-                </h2>
-                <p className="text-sm font-medium text-slate-800 dark:text-slate-200 mt-1">{detail.name}</p>
-              </div>
-              <button
-                type="button"
-                aria-label="Close"
-                onClick={() => setDetail(null)}
-                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="p-4 space-y-3 text-sm">
-              <div>
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Email</span>
-                <p className="text-slate-800 dark:text-slate-200 break-all">{detail.email}</p>
-              </div>
-              <div>
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Phone</span>
-                <p className="text-slate-800 dark:text-slate-200">{detail.phone}</p>
-              </div>
-              <div>
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Requested date</span>
-                <p className="text-slate-800 dark:text-slate-200">{detail.appointment_date}</p>
-              </div>
-              <div>
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Purpose</span>
-                <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{detail.purpose}</p>
-              </div>
-            </div>
-            <div className="p-4 pt-0 flex flex-col-reverse sm:flex-row gap-2 sm:justify-end border-t border-slate-100 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={() => setDetail(null)}
-                className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                Keep pending
-              </button>
-              <button
-                type="button"
-                onClick={() => approve(detail.id)}
-                className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-700"
-              >
-                Approve
-              </button>
-            </div>
-          </div>
-        </div>
+        <AppointmentDetailModal
+          appointment={detail}
+          onClose={() => setDetail(null)}
+          mode="pending"
+          onApprove={approve}
+        />
       ) : null}
     </>
   )

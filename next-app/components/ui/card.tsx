@@ -13,7 +13,7 @@ export function Card({
     <section
       id={id}
       className={cn(
-        'rounded-2xl border bg-white border-slate-200 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-indigo-500/5',
+        'rounded-2xl border bg-white border-slate-200 shadow-sm transition-all duration-200 dark:border-slate-800 dark:bg-slate-900 dark:shadow-indigo-500/5',
         className,
       )}
     >

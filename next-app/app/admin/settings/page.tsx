@@ -25,12 +25,12 @@ export default async function AdminSettingsPage() {
             <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
               Admin email
             </label>
-            <input
-              type="email"
-              value={adminEmail}
-              readOnly
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200"
-            />
+                <input
+                  type="email"
+                  value={adminEmail}
+                  readOnly
+                  className="admin-field opacity-90"
+                />
             <p className="mt-1 text-xs text-slate-500">
               This email is used for administrator communication.
             </p>

@@ -56,7 +56,7 @@ export function AdminNav({
           href={href}
           onClick={() => onNavigate?.()}
           className={[
-            'relative flex items-center gap-3 rounded-r-lg px-3 py-2.5 text-sm transition-colors',
+            'relative flex items-center gap-3 rounded-r-lg px-3 py-2.5 text-sm transition-all duration-200',
             active
               ? 'bg-indigo-50 text-indigo-900 border-l-4 border-l-indigo-600 -ml-px pl-[11px] dark:bg-slate-800 dark:text-slate-100 dark:border-l-indigo-500'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200',
@@ -69,7 +69,7 @@ export function AdminNav({
       <Link
         href="/"
         onClick={() => onNavigate?.()}
-        className="mt-3 flex items-center gap-3 rounded-r-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200 transition-colors"
+        className="mt-3 flex items-center gap-3 rounded-r-lg px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200 transition-all duration-200"
       >
         <ExternalLink className="h-4 w-4" />
         Back to Public Site

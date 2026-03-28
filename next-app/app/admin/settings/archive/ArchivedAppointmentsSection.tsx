@@ -1,12 +1,15 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Appointment } from '@/lib/supabase'
 import { ArchiveRestore, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 
 export function ArchivedAppointmentsSection({ appointments }: { appointments: Appointment[] }) {
   const router = useRouter()
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
 
   async function patch(id: number, body: Record<string, boolean>) {
     await fetch('/api/admin/appointments', {
@@ -21,17 +24,29 @@ export function ArchivedAppointmentsSection({ appointments }: { appointments: Ap
     await patch(id, { archived: false })
   }
 
-  async function softDelete(id: number) {
-    if (!confirm('Remove this archived item from view? The row stays in the database.')) return
-    await patch(id, { hidden: true })
+  async function confirmSoftDelete() {
+    if (deleteTargetId == null) return
+    await patch(deleteTargetId, { hidden: true })
+    setDeleteTargetId(null)
   }
 
   const th =
-    'text-left px-4 py-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500 border-b border-slate-200 dark:text-slate-400 dark:border-slate-800'
+    'text-left px-4 py-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500 border-b border-slate-200 dark:text-slate-400 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50'
   const td =
-    'px-4 py-4 border-b border-slate-100 text-[13px] text-slate-700 align-top dark:border-slate-800/50 dark:text-slate-300'
+    'px-4 py-4 border-b border-slate-100 text-[13px] text-slate-700 align-top dark:border-slate-800/50 dark:text-slate-300 transition-colors duration-200'
 
   return (
+    <>
+      <ConfirmDialog
+        open={deleteTargetId !== null}
+        title="Remove from list?"
+        message="Are you sure you want to delete? The record stays in the database but will be hidden from the archive."
+        confirmLabel="Yes"
+        cancelLabel="No"
+        variant="danger"
+        onCancel={() => setDeleteTargetId(null)}
+        onConfirm={confirmSoftDelete}
+      />
     <Card>
       <CardHeader>
         <CardTitle>Archived appointments</CardTitle>
@@ -62,7 +77,7 @@ export function ArchivedAppointmentsSection({ appointments }: { appointments: Ap
                 </tr>
               ) : (
                 appointments.map((a) => (
-                  <tr key={a.id} className="hover:bg-slate-800/40 transition-colors">
+                  <tr key={a.id} className="hover:bg-slate-800/40 transition-all duration-200">
                     <td className={td}>{a.name}</td>
                     <td className={td}>{a.email}</td>
                     <td className={td}>{a.phone}</td>
@@ -83,7 +98,7 @@ export function ArchivedAppointmentsSection({ appointments }: { appointments: Ap
                         </button>
                         <button
                           type="button"
-                          onClick={() => softDelete(a.id)}
+                          onClick={() => setDeleteTargetId(a.id)}
                           title="Remove from view"
                           aria-label="Remove from view"
                           className="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-rose-100 hover:text-rose-700 dark:hover:bg-rose-500/20 dark:hover:text-rose-400 transition-colors"
@@ -100,5 +115,6 @@ export function ArchivedAppointmentsSection({ appointments }: { appointments: Ap
         </div>
       </CardContent>
     </Card>
+    </>
   )
 }

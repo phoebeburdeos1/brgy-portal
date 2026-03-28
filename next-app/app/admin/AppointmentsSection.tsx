@@ -1,12 +1,18 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Appointment } from '@/lib/supabase'
 import { Archive, Check, CheckCircle2, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { AppointmentDetailModal } from '@/components/AppointmentDetailModal'
 
 export function AppointmentsSection({ appointments }: { appointments: Appointment[] }) {
   const router = useRouter()
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
+  const [archiveTargetId, setArchiveTargetId] = useState<number | null>(null)
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   const pending = appointments.filter((a) => !a.processed && !(a.archived ?? false))
   const completed = appointments.filter((a) => a.processed && !(a.archived ?? false))
 
@@ -21,21 +27,25 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
 
   async function approve(id: number) {
     await patch(id, { processed: true })
+    setSelectedAppointment(null)
   }
 
-  async function archiveCompleted(id: number) {
-    await patch(id, { archived: true })
+  async function confirmArchive() {
+    if (archiveTargetId == null) return
+    await patch(archiveTargetId, { archived: true })
+    setArchiveTargetId(null)
   }
 
-  async function softDelete(id: number) {
-    if (!confirm('Remove this from the list? The record stays in the database but is hidden from the dashboard.')) return
-    await patch(id, { hidden: true })
+  async function confirmSoftDelete() {
+    if (deleteTargetId == null) return
+    await patch(deleteTargetId, { hidden: true })
+    setDeleteTargetId(null)
   }
 
   const th =
-    'text-left px-4 py-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500 border-b border-slate-200 dark:text-slate-400 dark:border-slate-800'
+    'text-left px-4 py-4 text-[11px] font-semibold uppercase tracking-wide text-slate-500 border-b border-slate-200 dark:text-slate-400 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50'
   const td =
-    'px-4 py-4 border-b border-slate-100 text-[13px] text-slate-700 align-top dark:border-slate-800/50 dark:text-slate-300'
+    'px-4 py-4 border-b border-slate-100 text-[13px] text-slate-700 align-top dark:border-slate-800/50 dark:text-slate-300 transition-colors duration-200'
 
   function truncatePurpose(purpose?: string | null) {
     const value = (purpose ?? '').trim()
@@ -44,6 +54,35 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
   }
 
   return (
+    <>
+      <ConfirmDialog
+        open={deleteTargetId !== null}
+        title="Remove from list?"
+        message="Are you sure you want to delete? The record stays in the database but will be hidden from the dashboard."
+        confirmLabel="Yes"
+        cancelLabel="No"
+        variant="danger"
+        onCancel={() => setDeleteTargetId(null)}
+        onConfirm={confirmSoftDelete}
+      />
+      {selectedAppointment ? (
+        <AppointmentDetailModal
+          appointment={selectedAppointment}
+          onClose={() => setSelectedAppointment(null)}
+          mode={selectedAppointment.processed ? 'completed' : 'pending'}
+          onApprove={approve}
+        />
+      ) : null}
+      <ConfirmDialog
+        open={archiveTargetId !== null}
+        title="Archive appointment?"
+        message="Are you sure you want to archive this completed appointment? You can restore it later from Settings → Archive."
+        confirmLabel="Yes"
+        cancelLabel="No"
+        variant="neutral"
+        onCancel={() => setArchiveTargetId(null)}
+        onConfirm={confirmArchive}
+      />
     <Card id="appointments">
       <CardHeader className="flex items-center justify-between gap-3">
         <div>
@@ -87,7 +126,19 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
                 </tr>
               ) : (
                 pending.map((a) => (
-                  <tr key={a.id} className="hover:bg-slate-800/40 transition-colors">
+                  <tr
+                    key={a.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedAppointment(a)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setSelectedAppointment(a)
+                      }
+                    }}
+                    className="hover:bg-slate-800/40 transition-all duration-200 cursor-pointer"
+                  >
                     <td className={td}>{a.name}</td>
                     <td className={td}>{a.email}</td>
                     <td className={td}>{a.phone}</td>
@@ -96,11 +147,11 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
                     </td>
                     <td className={td}>{a.appointment_date}</td>
                     <td className={td}>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800 dark:bg-amber-500/10 dark:text-amber-500">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-600 shadow-[0_0_12px_rgba(245,158,11,0.2)] dark:text-amber-400">
                         Pending
                       </span>
                     </td>
-                    <td className={td}>
+                    <td className={td} onClick={(e) => e.stopPropagation()}>
                       <button
                         type="button"
                         onClick={() => approve(a.id)}
@@ -142,7 +193,19 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
                 </tr>
               ) : (
                 completed.map((a) => (
-                  <tr key={a.id} className="hover:bg-slate-800/40 transition-colors">
+                  <tr
+                    key={a.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedAppointment(a)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setSelectedAppointment(a)
+                      }
+                    }}
+                    className="hover:bg-slate-800/40 transition-all duration-200 cursor-pointer"
+                  >
                     <td className={td}>{a.name}</td>
                     <td className={td}>{a.email}</td>
                     <td className={td}>{a.phone}</td>
@@ -155,20 +218,20 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
                         Confirmed
                       </span>
                     </td>
-                    <td className={td}>
+                    <td className={td} onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
-                          onClick={() => archiveCompleted(a.id)}
+                          onClick={() => setArchiveTargetId(a.id)}
                           aria-label="Archive appointment"
                           title="Archive"
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-indigo-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400 transition-colors"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-indigo-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400 transition-all duration-200"
                         >
                           <Archive className="h-4 w-4" />
                         </button>
                         <button
                           type="button"
-                          onClick={() => softDelete(a.id)}
+                          onClick={() => setDeleteTargetId(a.id)}
                           aria-label="Remove from list"
                           title="Remove from list (kept in database)"
                           className="inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-rose-100 hover:text-rose-700 dark:text-slate-400 dark:hover:bg-rose-500/20 dark:hover:text-rose-400 transition-colors"
@@ -188,5 +251,6 @@ export function AppointmentsSection({ appointments }: { appointments: Appointmen
         </div>
       </CardContent>
     </Card>
+    </>
   )
 }

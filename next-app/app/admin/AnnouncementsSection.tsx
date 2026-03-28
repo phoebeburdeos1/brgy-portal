@@ -132,7 +132,7 @@ export function AnnouncementsSection({
             {activeWithTime.map((ann) => (
               <div
                 key={ann.id}
-                className="flex flex-wrap justify-between items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900"
+                className="interactive flex flex-wrap justify-between items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/80"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
@@ -185,7 +185,7 @@ export function AnnouncementsSection({
             {archivedWithTime.map((ann) => (
               <div
                 key={ann.id}
-                className="flex flex-wrap justify-between items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900"
+                className="interactive flex flex-wrap justify-between items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/80"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
@@ -242,7 +242,7 @@ export function AnnouncementsSection({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Free Anti-Rabies Vaccine Saturday!"
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-100"
+              className="admin-field"
               required
             />
           </div>
@@ -253,7 +253,7 @@ export function AnnouncementsSection({
               onChange={(e) => setBody(e.target.value)}
               rows={4}
               placeholder="Announcement details..."
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-100"
+              className="admin-field min-h-[6rem]"
               required
             />
           </div>
@@ -261,7 +261,7 @@ export function AnnouncementsSection({
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 disabled:opacity-50"
+              className="interactive inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
               {loading ? 'Posting…' : 'Post announcement'}

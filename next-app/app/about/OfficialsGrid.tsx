@@ -42,11 +42,10 @@ export function OfficialsGrid({ officials }: { officials: Official[] }) {
             key={official.name}
             type="button"
             onClick={() => setActive(official)}
-            className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow-sm border border-slate-200 dark:border-slate-700 text-center
+            className="interactive rounded-xl bg-white dark:bg-slate-800/80 p-5 shadow-sm border border-slate-200 dark:border-slate-700 text-center
               cursor-pointer select-none
-              hover:shadow-md hover:border-blue-200 dark:hover:border-slate-600
-              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950
-              transition-[box-shadow,border-color]"
+              hover:shadow-md hover:border-blue-200/80 dark:hover:border-slate-600
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950"
           >
             <div className="w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl font-bold mx-auto mb-3 overflow-hidden">
               {official.photoSrc ? (
@@ -61,7 +60,7 @@ export function OfficialsGrid({ officials }: { officials: Official[] }) {
               )}
             </div>
             <h3 className="font-bold text-slate-900 dark:text-slate-100">{official.name}</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 italic">{official.position}</p>
+            <p className="text-sm text-blue-800/80 dark:text-blue-300/70 italic font-medium">{official.position}</p>
             <p className="mt-3 text-xs font-medium text-blue-600 dark:text-blue-400">View details</p>
           </button>
         ))}

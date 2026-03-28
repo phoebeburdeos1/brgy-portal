@@ -26,7 +26,7 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm mb-8 transition-colors"
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm mb-8 transition-all duration-200"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Home
@@ -40,16 +40,16 @@ export default function AboutPage() {
           {/* Mission & Vision */}
           <section className="mb-16">
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-xl bg-white dark:bg-slate-800 p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-                <h2 className="text-lg font-bold text-blue-600 dark:text-blue-400 mb-3">Our Mission</h2>
+              <div className="interactive rounded-xl bg-white dark:bg-slate-800/80 p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-slate-600">
+                <h2 className="text-lg font-bold text-blue-700 dark:text-blue-300/90 mb-3">Our Mission</h2>
                 <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                   To provide efficient, transparent, and accessible public services that improve the quality of life
                   for every resident of Barangay Bonbon. We are committed to fostering a united, safe, and
                   progressive community through responsive governance and genuine public service.
                 </p>
               </div>
-              <div className="rounded-xl bg-white dark:bg-slate-800 p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-                <h2 className="text-lg font-bold text-blue-600 dark:text-blue-400 mb-3">Our Vision</h2>
+              <div className="interactive rounded-xl bg-white dark:bg-slate-800/80 p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-slate-600">
+                <h2 className="text-lg font-bold text-blue-700 dark:text-blue-300/90 mb-3">Our Vision</h2>
                 <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                   A barangay where every family thrives in a clean, peaceful, and sustainable environment.
                   We envision Barangay Bonbon as a model community—connected, resilient, and empowered—

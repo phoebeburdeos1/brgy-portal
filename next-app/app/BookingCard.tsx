@@ -173,7 +173,7 @@ export function BookingCard({
         <button
           type="submit"
           disabled={bookingDisabled || isSubmitting}
-          className="w-full rounded-full bg-amber-400 text-gray-900 font-semibold py-2.5 hover:bg-amber-300 disabled:opacity-50 transition"
+          className="w-full rounded-full bg-amber-400 text-gray-900 font-semibold py-2.5 hover:bg-amber-300 disabled:opacity-50 transition-all duration-200 hover:shadow-md"
         >
           {isSubmitting ? 'Sending…' : 'Schedule Now'}
         </button>

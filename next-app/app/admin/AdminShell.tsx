@@ -23,7 +23,7 @@ export function AdminShell({
 
   if (isLogin) {
     return (
-      <div className="min-h-screen flex bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950">
         <div className="fixed top-4 right-4 z-10">
           <ThemeToggle />
         </div>
@@ -34,7 +34,7 @@ export function AdminShell({
 
   return (
     <div className="min-h-screen flex bg-slate-100 dark:bg-slate-950">
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex h-14 items-center gap-3 border-b border-slate-200 bg-white/95 px-3 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/95">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex h-14 items-center gap-3 border-b border-slate-200 bg-white/95 px-3 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900">
         <button
           type="button"
           aria-expanded={navOpen}

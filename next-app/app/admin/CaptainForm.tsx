@@ -52,7 +52,7 @@ export function CaptainForm() {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-100 [&_option]:bg-white [&_option]:text-slate-900 dark:[&_option]:bg-slate-800 dark:[&_option]:text-slate-100"
+            className="admin-field [&_option]:bg-slate-100 dark:[&_option]:bg-slate-800 [&_option]:text-slate-900 dark:[&_option]:text-slate-100"
             required
           >
             <option value="On-Duty">On Duty (Green)</option>
@@ -66,7 +66,7 @@ export function CaptainForm() {
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="e.g. Cebu City for Barangay League"
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-100"
+            className="admin-field"
           />
         </div>
         <div>
@@ -75,14 +75,14 @@ export function CaptainForm() {
             type="date"
             value={returnDate}
             onChange={(e) => setReturnDate(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-100"
+            className="admin-field"
           />
         </div>
         <div className="flex justify-end">
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 disabled:opacity-50"
+            className="interactive inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 disabled:opacity-50"
           >
             {loading ? 'Saving…' : 'Save changes'}
           </button>

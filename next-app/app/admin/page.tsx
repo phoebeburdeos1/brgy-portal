@@ -41,10 +41,7 @@ export default async function AdminPage() {
   const completedCount = completedAppointments.length
   const captainStatus = captain?.status ?? 'Unknown'
   const captainVariant = captainStatus === 'On-Duty' ? 'green' : captainStatus === 'Out of Office' ? 'red' : 'slate'
-  const pendingTodayCount = pendingAppointments.filter((a) => {
-    const today = new Date().toISOString().slice(0, 10)
-    return (a.appointment_date ?? '').slice(0, 10) === today
-  }).length
+  const pendingCount = pendingAppointments.length
 
   const statCard = (
     label: string,
@@ -52,7 +49,7 @@ export default async function AdminPage() {
     subtext: string,
     linkText: string,
   ) => (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-transparent dark:shadow-indigo-500/5 flex flex-col justify-between">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none flex flex-col justify-between">
       <div>
         <div className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</div>
         <div className="mt-2 flex items-baseline gap-2">
@@ -63,7 +60,7 @@ export default async function AdminPage() {
         <span>{subtext}</span>
         <Link
           href="/admin/appointments"
-          className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+          className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition-all duration-200"
         >
           {linkText}
         </Link>
@@ -102,9 +99,9 @@ export default async function AdminPage() {
             <div className="flex items-center justify-between gap-3">
               <CardTitle className="flex items-center gap-2">
                   <span
-                    className={`inline-flex h-2.5 w-2.5 rounded-full ${
+                    className={`inline-flex h-2.5 w-2.5 shrink-0 rounded-full ${
                       captainStatus === 'On-Duty'
-                        ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+                        ? 'bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.85)] ring-2 ring-emerald-400/40'
                         : captainStatus === 'Out of Office'
                         ? 'bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.5)]'
                         : 'bg-slate-500'
@@ -123,7 +120,7 @@ export default async function AdminPage() {
 
           <div className="space-y-3">
             {statCard('Total Appointments', (deduped ?? []).length, 'All time', 'See details')}
-            {statCard('Pending Today', pendingTodayCount, 'Requires attention', 'See details')}
+            {statCard('Pending appointments', pendingCount, 'Requires attention', 'See details')}
             {statCard('Confirmed', completedCount, 'Successfully processed', 'See details')}
           </div>
         </div>
